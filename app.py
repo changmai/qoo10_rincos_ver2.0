@@ -5,6 +5,10 @@ import re
 from io import BytesIO
 from datetime import datetime
 from pathlib import Path
+from io import BytesIO  # 이미 있으시면 중복 import 안 해도 됩니다
+
+
+
 
 st.set_page_config(page_title="DR 자동 생성기", layout="wide")
 st.title("📦 DR.XLSX 자동 생성 프로그램")
@@ -63,6 +67,16 @@ def format_postal(postal):
     return "우편번호없음"
 
 
+def read_excel_from_uploader(uploaded_file):
+    """파일명을 신경 쓰지 않고 BytesIO 그대로 pandas로 읽는다."""
+    if uploaded_file is None:
+        return None
+    data = BytesIO(uploaded_file.getbuffer())
+    return pd.read_excel(data)
+
+
+
+
 # ──────────────────────────────────────────────
 # 기본 H 로더 (캐시)
 # ──────────────────────────────────────────────
@@ -86,7 +100,7 @@ if use_default_h:
 else:
     h_file = st.sidebar.file_uploader("H.XLSX 업로드", type=["xlsx"])
     if h_file:
-        df_H = pd.read_excel(h_file)
+        df_H = read_excel_from_uploader(h_file)
     else:
         st.warning("H.XLSX 파일을 업로드하거나 기본 파일을 사용해 주세요.")
         st.stop()
@@ -100,8 +114,9 @@ df_H.columns = df_H.columns.str.lower()
 st.subheader("1단계 · S.XLSX 업로드")
 s_file = st.file_uploader("S.XLSX 파일을 선택하세요", type=["xlsx"])
 
+
 if s_file:
-    df_S = pd.read_excel(s_file)
+    df_S = read_excel_from_uploader(s_file)
     df_S.columns = df_S.columns.str.lower()
 
     # 1) S ↔ H 매핑
