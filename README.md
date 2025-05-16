@@ -1,0 +1,1 @@
+# qoo10_rincos_ver2.0
